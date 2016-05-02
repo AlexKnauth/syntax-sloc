@@ -15,5 +15,5 @@
 
 (module+ test
   (check-equal? (lang-file-sloc (quote-source-file))
-                11))
+                12))
 

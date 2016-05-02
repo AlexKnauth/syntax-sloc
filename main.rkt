@@ -16,7 +16,7 @@
 (define (source-lines stx lines)
   (cond [(syntax? stx)
          ; this is the only case that adds to the set of lines
-         (source-lines (syntax-e stx) (set-add lines (syntax-line stx)))]
+         (source-lines (syntax-e stx) (add-source-line lines (syntax-line stx)))]
         [(empty? stx)
          lines]
         [(cons? stx)
@@ -41,6 +41,11 @@
         [else
          ; otherwise give up.
          lines]))
+
+;; add-source-line : (Setof Natural) (U Natural False) -> (Setof Natural)
+(define (add-source-line lines source-line)
+  (cond [source-line (set-add lines source-line)]
+        [else lines]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -85,7 +90,7 @@
                  #'(define (source-lines stx lines)
                      (cond [(syntax? stx)
                             ; this is the only case that adds to the set of lines
-                            (source-lines (syntax-e stx) (set-add lines (syntax-line stx)))]
+                            (source-lines (syntax-e stx) (add-source-line lines (syntax-line stx)))]
                            [(empty? stx)
                             lines]
                            [(cons? stx)
