@@ -4,7 +4,9 @@
           scribble-code-examples
           (for-label racket/base
                      racket/contract/base
-                     syntax-sloc))
+                     syntax-sloc
+                     syntax-sloc/lang-file
+                     ))
 
 @title{Counting Source Lines of Code}
 
