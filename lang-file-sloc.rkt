@@ -2,7 +2,7 @@
 
 (provide lang-file-sloc)
 
-(require "main.rkt"
+(require "syntax-sloc.rkt"
          "read-lang-file.rkt")
 
 (module+ test

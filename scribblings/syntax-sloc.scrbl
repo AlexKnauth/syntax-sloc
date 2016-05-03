@@ -5,14 +5,15 @@
           (for-label racket/base
                      racket/contract/base
                      syntax-sloc
-                     syntax-sloc/lang-file
                      ))
 
 @title{Counting Source Lines of Code}
 
+@defmodule[syntax-sloc]
+
 @section{Of a Syntax Object}
 
-@defmodule[syntax-sloc]
+@defmodule[syntax-sloc/syntax-sloc]
 
 @defproc[(syntax-sloc [stx syntax?]) natural-number/c]{
 Counts the number of source lines of code in the syntax object
@@ -33,7 +34,7 @@ and counting how many different lines are there.
 
 @section{Of a @hash-lang[] file}
 
-@defmodule[syntax-sloc/lang-file]
+@defmodule[syntax-sloc/lang-file-sloc]
 
 @defproc[(lang-file-sloc [path-string path-string?]) natural-number/c]{
 Counts the number of source lines of code in the file that
