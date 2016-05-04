@@ -9,6 +9,8 @@
 
 @title{Counting Source Lines of Code}
 
+source code: @url{https://github.com/AlexKnauth/syntax-sloc}
+
 @defmodule[syntax-sloc]
 
 @section{Of a Syntax Object}
