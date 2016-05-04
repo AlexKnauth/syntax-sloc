@@ -15,5 +15,5 @@ documentation: http://docs.racket-lang.org/syntax-sloc/index.html
 3
 > ; or counting them in a #lang file:
   (lang-file-sloc "lang-file-sloc.rkt")
-12
+13
 ```
