@@ -1,7 +1,6 @@
 #lang scribble/manual
 
-@(require scribble/eval
-          scribble-code-examples
+@(require scribble-code-examples
           (for-label racket/base
                      racket/contract/base
                      syntax-sloc
@@ -40,5 +39,9 @@ and counting how many different lines are there.
 Counts the number of source lines of code in the file that
 @racket[path-string] points to. This file must start with either
 a valid @hash-lang[] line or a racket @racket[module] form. 
-}
 
+@code-examples[#:lang "racket/base" #:context #'here]{
+(require syntax-sloc)
+(lang-file-sloc (collection-file-path "lang-file-sloc.rkt" "syntax-sloc"))
+(lang-file-sloc (collection-file-path "syntax-sloc.scrbl" "syntax-sloc" "scribblings"))
+}}
