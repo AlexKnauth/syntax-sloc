@@ -49,3 +49,25 @@ a valid @hash-lang[] line or a racket @racket[module] form.
 (lang-file-sloc "lang-file-sloc.rkt")
 (lang-file-sloc "scribblings/syntax-sloc.scrbl")
 }}
+
+@section{Of a directory}
+
+@defmodule[syntax-sloc/directory-sloc]
+
+@defproc[(directory-sloc [path-string path-string?]) natural-number/c]{
+Counts the number of source lines of code in all @hash-lang[] files
+recursively contained inside the directory that @racket[path-string] points to.
+
+@code-examples[#:lang "racket" #:context #'here]{
+(require syntax-sloc)
+(current-directory (path-only (collection-file-path "lang-file-sloc.rkt" "syntax-sloc")))
+(directory-sloc (current-directory))
+}}
+
+@section{On the command line: @exec{raco sloc}}
+
+The @exec{raco sloc} command counts source lines of code in files or directories
+named on the command line and prints results.
+If an argument to @exec{raco sloc} is not a @hash-lang[] file or a directory,
+its line count is not computed.
+

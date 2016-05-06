@@ -20,3 +20,12 @@ documentation: http://docs.racket-lang.org/syntax-sloc/index.html
 > (lang-file-sloc "lang-file-sloc.rkt")
 13
 ```
+
+On the command line, `raco sloc [<FILE-OR-DIRECTORY>] ...` prints line counts
+for its arguments.
+
+```
+$ raco sloc lang-file-sloc.rkt
+  SLOC  Source
+    13  lang-file-sloc.rkt
+```
