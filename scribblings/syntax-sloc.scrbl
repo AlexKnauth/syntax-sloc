@@ -65,10 +65,13 @@ except for the ones that @racket[use-file?] returns false for.
 (require syntax-sloc)
 (current-directory (path-only (collection-file-path "lang-file-sloc.rkt" "syntax-sloc")))
 (directory-sloc (current-directory))
+(define ((has-extension? ext) path)
+  ;; ext is a byte string containing the expected extension, without the dot
+  (equal? (filename-extension path) ext))
 (directory-sloc (current-directory)
-                #:use-file? (λ (path) (path-has-extension? path ".rkt")))
+                #:use-file? (has-extension? #"rkt"))
 (directory-sloc (current-directory)
-                #:use-file? (λ (path) (path-has-extension? path ".scrbl")))
+                #:use-file? (has-extension? #"scrbl"))
 }}
 
 @section{On the command line: @exec{raco sloc}}
