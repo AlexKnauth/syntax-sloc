@@ -1,4 +1,4 @@
-syntax-sloc
+syntax-sloc [![Build Status](https://travis-ci.org/AlexKnauth/syntax-sloc.png?branch=master)](https://travis-ci.org/AlexKnauth/syntax-sloc)
 ===
 A racket package that counts the number of source lines of code in a racket syntax object.
 
