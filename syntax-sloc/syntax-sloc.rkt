@@ -1,4 +1,4 @@
-#lang racket/base
+#lang typed/racket/base
 
 (provide syntax-sloc)
 
@@ -6,13 +6,13 @@
          racket/set)
 
 (module+ test
-  (require rackunit))
+  (require typed/rackunit))
 
-;; syntax-sloc : Syntax -> Natural
+(: syntax-sloc : (Syntaxof Any) -> Natural)
 (define (syntax-sloc stx)
   (set-count (source-lines stx (set))))
 
-;; source-lines : Any (Setof Natural) -> (Setof Natural)
+(: source-lines : Any (Setof Natural) -> (Setof Natural))
 (define (source-lines stx lines)
   (cond [(syntax? stx)
          ; this is the only case that adds to the set of lines
@@ -42,7 +42,7 @@
          ; otherwise give up.
          lines]))
 
-;; add-source-line : (Setof Natural) (U Natural False) -> (Setof Natural)
+(: add-source-line : (Setof Natural) (U Natural False) -> (Setof Natural))
 (define (add-source-line lines source-line)
   (cond [source-line (set-add lines source-line)]
         [else lines]))
