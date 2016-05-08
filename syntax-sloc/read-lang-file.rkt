@@ -22,7 +22,7 @@
 ;; private value eq? to itself
 (define read-language-fail (gensym 'read-language-fail))
 
-;; lang-file? : Path-String -> Syntax
+;; lang-file? : Path-String -> Boolean
 (define (lang-file? path-string)
   (cond
     [(file-exists? path-string)
