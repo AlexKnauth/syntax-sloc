@@ -12,5 +12,6 @@
     "scribble-lib"
     "scribble-code-examples"
     "racket-doc"
+    "typed-racket-more"
     ))
 
