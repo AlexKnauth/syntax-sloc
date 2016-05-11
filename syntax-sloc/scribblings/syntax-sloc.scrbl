@@ -65,8 +65,8 @@ except for the ones that @racket[use-file?] returns false for.
 (require syntax-sloc)
 (current-directory (path-only (collection-file-path "lang-file-sloc.rkt" "syntax-sloc")))
 (directory-sloc (current-directory))
+;; ext is a byte string containing the expected extension, without the dot
 (define ((has-extension? ext) path)
-  ;; ext is a byte string containing the expected extension, without the dot
   (equal? (filename-extension path) ext))
 (directory-sloc (current-directory)
                 #:use-file? (has-extension? #"rkt"))
