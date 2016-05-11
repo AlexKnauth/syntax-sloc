@@ -1,4 +1,4 @@
-#lang racket/base
+#lang typed/racket/base
 
 ;; DO NOT modify this file without also updating the SLOC count in:
 ;;  - the test at the bottom of this file
@@ -7,18 +7,18 @@
 (provide lang-file-sloc)
 
 (require "syntax-sloc.rkt"
-         "read-lang-file.rkt")
+         typed/syntax-sloc/read-lang-file)
 
 (module+ test
-  (require rackunit
+  (require typed/rackunit
            racket/runtime-path))
 
-;; lang-file-sloc : Path-String -> Natural
+(: lang-file-sloc : Path-String -> Natural)
 (define (lang-file-sloc path-string)
   (syntax-sloc (read-lang-file path-string)))
 
 (module+ test
   (define-runtime-path this-file "lang-file-sloc.rkt")
   (check-equal? (lang-file-sloc this-file)
-                13))
+                14))
 
