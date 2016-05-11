@@ -1,28 +1,28 @@
-#lang racket/base
+#lang typed/racket/base
 
 (provide read-lang-file
          lang-file?)
 
-(require syntax/modread)
+(require "private/typed-syntax-modread.rkt")
 
 (module+ test
-  (require rackunit
+  (require typed/rackunit
            racket/runtime-path))
 
-;; read-lang-file : Path-String -> Syntax
+(: read-lang-file : Path-String -> (Syntaxof Any))
 (define (read-lang-file path-string)
   (define port (open-input-file path-string))
   (port-count-lines! port)
   (begin0
     (with-module-reading-parameterization 
      (lambda () 
-       (read-syntax (object-name port) port)))
+       (assert (read-syntax (object-name port) port) syntax?)))
     (close-input-port port)))
 
 ;; private value eq? to itself
 (define read-language-fail (gensym 'read-language-fail))
 
-;; lang-file? : Path-String -> Boolean
+(: lang-file? : Path-String -> Boolean)
 (define (lang-file? path-string)
   (cond
     [(file-exists? path-string)
