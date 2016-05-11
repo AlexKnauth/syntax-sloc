@@ -1,6 +1,8 @@
 #lang racket/base
 
-(provide read-lang-file
+(require racket/contract/base)
+(provide (contract-out
+          [read-lang-file (-> path-string? syntax?)])
          lang-file?)
 
 (require syntax/modread)
