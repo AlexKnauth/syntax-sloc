@@ -26,7 +26,7 @@
           #:limit-marker "..."
           #:limit-prefix? #t))
 
-;; missing-sloc : Path-String -> String
+;; missing-sloc : String -> String
 (define (missing-sloc src)
   (string-append " N/A" "\t" src))
 
