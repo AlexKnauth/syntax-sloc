@@ -1,3 +1,5 @@
 compiled/
 doc/
 *~
+*.swp
+*.swo
