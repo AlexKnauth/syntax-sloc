@@ -1,6 +1,7 @@
 #lang scribble/manual
 
 @(require scribble-code-examples
+          (only-in scribble/bnf nonterm)
           (for-label racket/base
                      racket/contract/base
                      racket/path
@@ -81,3 +82,13 @@ named on the command line and prints results.
 If an argument to @exec{raco sloc} is not a @hash-lang[] file or a directory,
 its line count is not computed.
 
+Available flags:
+@itemlist[
+  @item{
+    @DFlag{lang} @nonterm{lang-pregexp} --- Only count lines for files whose
+      @hash-lang[] string exactly matches the @nonterm{lang-pregexp} regular
+      expression.
+      For example @DFlag{lang} @tt{racket} will match @tt{#lang racket} and
+      @tt{#!racket} but not @tt{#lang racket/base} or @tt{#lang sweet-exp racket}.
+  }
+]
