@@ -4,9 +4,6 @@
 
 (require syntax-sloc
          (only-in syntax-sloc/read-lang-file lang-file? lang-file-lang)
-         (only-in racket/list last)
-         (only-in racket/string string-trim)
-         (only-in racket/port call-with-input-string peeking-input-port)
          (only-in racket/format ~a ~r))
 
 ;; -----------------------------------------------------------------------------
