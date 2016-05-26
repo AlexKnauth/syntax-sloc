@@ -5,6 +5,7 @@
 (define deps
   '("base"
     "typed-racket-lib"
+    "lang-file"
     ))
 
 (define build-deps
