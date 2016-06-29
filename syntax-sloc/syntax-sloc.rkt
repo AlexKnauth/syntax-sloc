@@ -14,33 +14,41 @@
 
 (: source-lines : Any (Setof Natural) -> (Setof Natural))
 (define (source-lines stx lines)
+  (accumulate/stx stx add-syntax-source-line lines))
+
+(: add-syntax-source-line : (Setof Natural) (Syntaxof Any) -> (Setof Natural))
+(define (add-syntax-source-line lines stx)
+  (add-source-line lines (syntax-line stx)))
+
+(: accumulate/stx : (∀ (A) Any [A (Syntaxof Any) -> A] A -> A))
+(define (accumulate/stx stx add-stx acc)
   (cond [(syntax? stx)
-         ; this is the only case that adds to the set of lines
-         (source-lines (syntax-e stx) (add-source-line lines (syntax-line stx)))]
+         ; this is the only case that adds stx to acc
+         (accumulate/stx (syntax-e stx) add-stx (add-stx acc stx))]
         [(empty? stx)
-         lines]
+         acc]
         [(cons? stx)
          ; this adds everything in the car, then everything in the cdr
-         (source-lines (cdr stx) (source-lines (car stx) lines))]
+         (accumulate/stx (cdr stx) add-stx (accumulate/stx (car stx) add-stx acc))]
         [(box? stx)
          ; this adds everything in the contents of the box
-         (source-lines (unbox stx) lines)]
+         (accumulate/stx (unbox stx) add-stx acc)]
         [(vector? stx)
          ; or vector
-         (for/fold ([lines lines])
+         (for/fold ([acc acc])
                    ([val (in-vector stx)])
-           (source-lines val lines))]
+           (accumulate/stx val add-stx acc))]
         [(hash? stx)
          ; or hash
-         (for/fold ([lines lines])
+         (for/fold ([acc acc])
                    ([(key val) (in-hash stx)])
-           (source-lines val (source-lines key lines)))]
+           (accumulate/stx val add-stx (accumulate/stx key add-stx acc)))]
         [(struct? stx)
          ; or non-opaque struct, including prefab structs,
-         (source-lines (struct->vector stx) lines)]
+         (accumulate/stx (struct->vector stx) add-stx acc)]
         [else
          ; otherwise give up.
-         lines]))
+         acc]))
 
 (: add-source-line : (Setof Natural) (U Natural False) -> (Setof Natural))
 (define (add-source-line lines source-line)
@@ -87,34 +95,34 @@
                 2)
 
   (check-equal? (syntax-sloc
-                 #'(define (source-lines stx lines)
+                 #'(define (accumulate/stx stx add-stx acc)
                      (cond [(syntax? stx)
-                            ; this is the only case that adds to the set of lines
-                            (source-lines (syntax-e stx) (add-source-line lines (syntax-line stx)))]
+                            ; this is the only case that adds stx to acc
+                            (accumulate/stx (syntax-e stx) add-stx (add-stx acc stx))]
                            [(empty? stx)
-                            lines]
+                            acc]
                            [(cons? stx)
                             ; this adds everything in the car, then everything in the cdr
-                            (source-lines (cdr stx) (source-lines (car stx) lines))]
+                            (accumulate/stx (cdr stx) add-stx (accumulate/stx (car stx) add-stx acc))]
                            [(box? stx)
                             ; this adds everything in the contents of the box
-                            (source-lines (unbox stx) lines)]
+                            (accumulate/stx (unbox stx) add-stx acc)]
                            [(vector? stx)
                             ; or vector
-                            (for/fold ([lines lines])
+                            (for/fold ([acc acc])
                                       ([val (in-vector stx)])
-                              (source-lines val lines))]
+                              (accumulate/stx val add-stx acc))]
                            [(hash? stx)
                             ; or hash
-                            (for/fold ([lines lines])
+                            (for/fold ([acc acc])
                                       ([(key val) (in-hash stx)])
-                              (source-lines val (source-lines key lines)))]
+                              (accumulate/stx val add-stx (accumulate/stx key add-stx acc)))]
                            [(struct? stx)
                             ; or non-opaque struct, including prefab structs,
-                            (source-lines (struct->vector stx) lines)]
+                            (accumulate/stx (struct->vector stx) add-stx acc)]
                            [else
                             ; otherwise give up.
-                            lines])))
+                            acc])))
                 21)
 
   )
