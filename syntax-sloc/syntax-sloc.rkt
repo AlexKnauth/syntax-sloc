@@ -1,41 +1,47 @@
 #lang typed/racket/base
 
-(provide syntax-sloc)
+(provide syntax-sloc syntax-sloc/filter)
 
 (require racket/set
          "private/accumulate-stx.rkt"
          )
 
+(define-type Syntax (Syntaxof Any))
+
 (module+ test
   (require typed/rackunit typed/syntax/stx
            (submod "private/accumulate-stx.rkt" test)))
 
-(: syntax-sloc : (Syntaxof Any) -> Natural)
-(define (syntax-sloc stx)
-  (set-count (source-lines stx (set))))
+(: syntax-sloc : Syntax [#:count-line? [Syntax -> Boolean]] -> Natural)
+(define (syntax-sloc stx #:count-line? [count-line? (λ (stx) #true)])
+  (set-count (source-lines stx (set) #:count-line? count-line?)))
 
-(: syntax-sloc/filter : (Syntaxof Any) [(Syntaxof Any) -> Boolean] -> Natural)
-(define (syntax-sloc/filter stx include-stx?)
-  (set-count (source-lines/filter stx include-stx? (set))))
+(: syntax-sloc/filter : Syntax [Syntax -> Boolean] [#:count-line? [Syntax -> Boolean]] -> Natural)
+(define (syntax-sloc/filter stx include-stx? #:count-line? [count-line? (λ (stx) #true)])
+  (set-count (source-lines/filter stx include-stx? (set) #:count-line? count-line?)))
 
-(: source-lines : Any (Setof Natural) -> (Setof Natural))
-(define (source-lines stx lines)
-  (accumulate/stx* stx add-syntax-source-line lines))
+(: source-lines : Any (Setof Natural) #:count-line? [Syntax -> Boolean] -> (Setof Natural))
+(define (source-lines stx lines #:count-line? count-line?)
+  (accumulate/stx* stx (add-syntax-source-line count-line?) lines))
 
-(: source-lines/filter : Any [(Syntaxof Any) -> Boolean] (Setof Natural) -> (Setof Natural))
-(define (source-lines/filter stx include-stx? lines)
+(: source-lines/filter : Any [Syntax -> Boolean] (Setof Natural)
+                         #:count-line? [Syntax -> Boolean]
+                         -> (Setof Natural))
+(define (source-lines/filter stx include-stx? lines #:count-line? count-line?)
   (for/fold ([lines lines])
             ([incl-stx (in-list (filter/stx stx include-stx?))])
-    (source-lines incl-stx lines)))
+    (source-lines incl-stx lines #:count-line? count-line?)))
 
-(: add-syntax-source-line : (Setof Natural) (Syntaxof Any) -> (Setof Natural))
-(define (add-syntax-source-line lines stx)
-  (add-source-line lines (syntax-line stx)))
+(: add-syntax-source-line : [Syntax -> Boolean] -> [(Setof Natural) Syntax -> (Setof Natural)])
+(define ((add-syntax-source-line count-line?) lines stx)
+  (if (count-line? stx)
+      (add-source-line lines (syntax-line stx))
+      lines))
 
-(: filter/stx : Any [(Syntaxof Any) -> Boolean] -> (Listof (Syntaxof Any)))
+(: filter/stx : Any [Syntax -> Boolean] -> (Listof Syntax))
 ;; This doesn't recur into the sub-syntax objects of the ones that are added to the list.
 (define (filter/stx stx include-stx?)
-  (: add-stx : (Listof (Syntaxof Any)) (Syntaxof Any) -> (Listof (Syntaxof Any)))
+  (: add-stx : (Listof Syntax) Syntax -> (Listof Syntax))
   (define (add-stx acc stx)
     (if (include-stx? stx)
         (cons stx acc)
