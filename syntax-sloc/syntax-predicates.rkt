@@ -19,7 +19,8 @@
 )
 
 (require/typed syntax/modresolve
-  (resolve-module-path (-> Module-Path Path)))
+  (resolve-module-path-index (-> Module-Path-Index Path-String Any))
+  (resolve-module-path (-> Module-Path Path-String Any)))
 
 (module+ test
   (require typed/rackunit))
@@ -33,22 +34,29 @@
 
 (: module-path->stx-predicate (-> Module-Path Stx-Pred))
 (define (module-path->stx-predicate mp)
-  (define id* (module-path->id-set mp))
+  (define cwd (current-directory))
   (lambda ([stx : (Syntaxof Any)])
-    (and (identifier? stx)
-         (free-id-set-member? id* stx)
-         ;(printf "YES ~a\n" stx)
-         #t)))
+    (for/or ([id (in-list (syntax->shallow-id* stx))]) : Boolean
+      (define mpi (id->module-path-index id))
+      (and mpi (member mp (module-path-index-split* mpi)) #t))))
 
-(: module-path->id-set (-> Module-Path Free-Id-Set))
-(define (module-path->id-set mp)
-  (define r (resolve-module-path mp))
-  (parameterize ([current-namespace (make-base-namespace)])
-    (dynamic-require r (void))
-    (define-values (var* stx*) (module->exports r))
-    (free-id-set-union
-      (provided->id-set var*)
-      (provided->id-set stx*))))
+(: id->module-path-index (-> Identifier (U #f Module-Path-Index)))
+(define (id->module-path-index id)
+  (define b (identifier-binding id))
+  (and (list? b) (car b)))
+
+(: module-path-index-split* (-> Module-Path-Index (Listof Any)))
+(define (module-path-index-split* mpi)
+  (let-values ([(a b) (module-path-index-split mpi)])
+    (cond
+     [(not a)
+      (list mpi)]
+     [(not b)
+      (list a)]
+     [(resolved-module-path? b)
+      (list a b)]
+     [else
+      (cons a (module-path-index-split* b))])))
 
 (define-type RawProvided (Pairof Phase (Listof (List Symbol History))))
 (define-type Phase       (U #f Integer))
@@ -66,16 +74,16 @@
       (free-id-set-add acc (namespace-syntax-introduce #`#,(car sym+hist))))))
 
 ;; TODO doc (only the flat ids)
-(: syntax->shallow-id-set (-> (Syntaxof Any) Free-Id-Set))
-(define (syntax->shallow-id-set stx)
+(: syntax->shallow-id* (-> (Syntaxof Any) (Listof Identifier)))
+(define (syntax->shallow-id* stx)
   (define e (syntax-e stx))
   (cond
-   [(symbol? e)
-    (immutable-free-id-set (list stx))]
+   [(identifier? stx)
+    (list stx)]
    [(list? e)
-    (immutable-free-id-set (filter identifier? e))]
+    (filter identifier? e)]
    [else
-    (immutable-free-id-set)]))
+    '()]))
 
 ;; -----------------------------------------------------------------------------
 

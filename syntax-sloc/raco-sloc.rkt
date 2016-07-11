@@ -68,10 +68,6 @@
     builtin-pred]
    [(module-path? sym)
     (module-path->stx-predicate sym)]
-   [(and (string-prefix? str "(") (string-suffix? str ")"))
-    (with-handlers ([exn:fail? (lambda (exn) #f)])
-      (define val (cast (with-input-from-string str read) (Listof Module-Path)))
-      (module-path*->stx-predicate val))]
    [else
     #f]))
 
@@ -91,8 +87,9 @@
 (module+ main
   (require racket/cmdline)
   (define *lang-file-pregexp* : (Parameterof (U #f Regexp)) (make-parameter #f))
-  (define *mp-string*         : (Parameterof (U #f String)) (make-parameter #f))
-  (define *use-stx?*          : (Parameterof Stx-Pred) (make-parameter #f))
+  (define *mp-string* : (Parameterof (U #f String)) (make-parameter #f))
+  (define *stx-preds* : (Parameterof (U #f (Listof Stx-Pred)))
+    (make-parameter #f))
   (command-line
    #:program "syntax-sloc"
    #:once-each
@@ -107,9 +104,11 @@
             (for/list : (Listof String) ([sym+desc (in-list module-option-help)])
               (~a "  - " (car sym+desc) " : " (cadr sym+desc))))
       "\n")]
-    (let ([mp-str (assert mp string?)])
-      (*use-stx?* (string->stx-pred/fail mp-str))
-      (*mp-string* mp-str))]
+    (let* ([mp-str (assert mp string?)]
+           [pred (string->stx-pred/fail mp-str)]
+           [old-preds (or (*stx-preds*) '())])
+      (*mp-string* mp-str)
+      (*stx-preds* (cons pred old-preds)))]
    #:args FILE-OR-DIRECTORY
    (define px (*lang-file-pregexp*))
    (printf SLOC-HEADER (module-path-string->header (*mp-string*)))
@@ -118,12 +117,17 @@
      (if px
          (lambda ((src : Path-String)) (lang-line-match? px src))
          (lambda ((src : Path-String)) #t)))
-   (define use-stx? : Stx-Pred
-     (*use-stx?*))
+   (define include-stx? : Stx-Pred
+     (let ([preds (*stx-preds*)])
+       (if preds
+         (lambda ([x : (Syntaxof Any)])
+           (for/and ([p (in-list preds)]) : Boolean
+             (and p (p x))))
+         #f)))
    (define (directory-sloc/filter (src : Path-String)) : Natural
-     (directory-sloc src #:use-file? matching-lang? #:use-stx? use-stx?))
+     (directory-sloc src #:use-file? matching-lang? #:include-stx? include-stx?))
    (define (lang-file-sloc/filter (src : Path-String)) : Natural
-     (lang-file-sloc src #:use-stx? use-stx?))
+     (lang-file-sloc src #:include-stx? include-stx?))
    (for ([any (in-list FILE-OR-DIRECTORY)])
      (define src (assert any string?))
      (displayln

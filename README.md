@@ -18,7 +18,7 @@ documentation: http://docs.racket-lang.org/syntax-sloc/index.html
 ; or counting them in a #lang file:
 > (current-directory (path-only (collection-file-path "lang-file-sloc.rkt" "syntax-sloc")))
 > (lang-file-sloc "lang-file-sloc.rkt")
-14
+29
 ```
 
 On the command line, `raco sloc [<FILE-OR-DIRECTORY>] ...` prints line counts
@@ -27,5 +27,5 @@ for its arguments.
 ```
 $ raco sloc lang-file-sloc.rkt
   SLOC  Source
-    14  lang-file-sloc.rkt
+    29  lang-file-sloc.rkt
 ```

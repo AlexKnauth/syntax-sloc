@@ -42,7 +42,7 @@
   (for ([tag+p (in-list predicates)]) : Void
     (define-values (tag p) (apply values tag+p))
     (define handwritten-sloc (count-tagged-lines (car tag+p) path))
-    (define automatic-sloc (lang-file-sloc path #:use-stx? p))
+    (define automatic-sloc (lang-file-sloc path #:include-stx? p))
     (check-equal? automatic-sloc handwritten-sloc
                   (format "~a lines of code in '~a'" tag path))))
 

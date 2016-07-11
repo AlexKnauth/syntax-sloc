@@ -97,9 +97,10 @@ Available flags:
 @itemlist[
   @item{
     @DFlag{module} @nonterm{module-path} --- Only count lines containing
-      identifiers from the module (or list of modules) @nonterm{module-path}.
+      identifiers from the module @nonterm{module-path}.
       For instance, @exec{raco sloc --module racket/string *.rkt} counts only
        lines using identifiers from @racket[racket/string].
+      Any number of @exec{--module} flags can be passed to a single command.
 
       Certain symbols represent a pre-defined group of module paths e.g.
        @exec{raco sloc --module type-ann *.rkt} will approximate the number of
