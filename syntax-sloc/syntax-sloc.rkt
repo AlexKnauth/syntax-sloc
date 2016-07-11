@@ -1,6 +1,9 @@
 #lang typed/racket/base
 
-(provide syntax-sloc)
+(provide syntax-sloc
+         filter/stx
+         source-lines/filter
+         Stx-Pred)
 
 (require racket/set
          "private/accumulate-stx.rkt"
@@ -9,6 +12,8 @@
 (module+ test
   (require typed/rackunit typed/syntax/stx
            (submod "private/accumulate-stx.rkt" test)))
+
+(define-type Stx-Pred (U #f (-> (Syntaxof Any) Boolean)))
 
 (: syntax-sloc : (Syntaxof Any) -> Natural)
 (define (syntax-sloc stx)
