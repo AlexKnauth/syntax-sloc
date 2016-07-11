@@ -7,15 +7,16 @@
 (provide lang-file-sloc)
 
 (require "syntax-sloc.rkt"
-         typed/syntax-sloc/read-lang-file)
+         typed/syntax-sloc/read-lang-file
+         syntax-sloc/syntax-sloc)
 
 (module+ test
   (require typed/rackunit
            racket/runtime-path))
 
-(: lang-file-sloc : Path-String -> Natural)
-(define (lang-file-sloc path-string)
-  (syntax-sloc (read-lang-file path-string)))
+(: lang-file-sloc : Path-String [#:use-stx? Stx-Pred] -> Natural)
+(define (lang-file-sloc path-string #:use-stx? [use-stx? #f])
+  (syntax-sloc (read-lang-file path-string) #:use-stx? use-stx?))
 
 (module+ test
   (define-runtime-path this-file "lang-file-sloc.rkt")
