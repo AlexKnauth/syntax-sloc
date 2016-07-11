@@ -6,7 +6,7 @@
          racket/set)
 
 (module+ test
-  (require typed/rackunit))
+  (require typed/rackunit typed/syntax/stx))
 
 (: syntax-sloc : (Syntaxof Any) -> Natural)
 (define (syntax-sloc stx)
@@ -19,6 +19,17 @@
 (: add-syntax-source-line : (Setof Natural) (Syntaxof Any) -> (Setof Natural))
 (define (add-syntax-source-line lines stx)
   (add-source-line lines (syntax-line stx)))
+
+(: filter/stx : Any [(Syntaxof Any) -> Boolean] -> (Listof (Syntaxof Any)))
+;; This doesn't recur into the sub-syntax objects of the ones that are added to the list.
+(define (filter/stx stx include-stx?)
+  (: add-stx : (Listof (Syntaxof Any)) (Syntaxof Any) -> (Listof (Syntaxof Any)))
+  (define (add-stx acc stx)
+    (if (include-stx? stx)
+        (cons stx acc)
+        (accumulate/stx/no-recur (syntax-e stx) add-stx acc)))
+  (reverse
+   (accumulate/stx/no-recur stx add-stx (list))))
 
 (: accumulate/stx : (∀ (A) Any [A (Syntaxof Any) -> A] A -> A))
 (define (accumulate/stx stx add-stx acc)
@@ -135,6 +146,23 @@
                             ; otherwise give up.
                             acc])))
                 23)
+
+  (test-case "filter/stx"
+    (define stx1 #'x)
+    (define stx2 #'y)
+    (define stx3 #'z)
+    (define stx4 #`(#,stx1 #,stx2))
+    (define stx5 #`(#,stx2 #,stx3))
+    (define stx6 #`(#,stx4 #,stx5))
+    (check-true (equal?
+                 (filter/stx #`(#,stx1 (#,stx2) #,stx4 5 #,stx5)
+                             identifier?)
+                 (list stx1 stx2 stx1 stx2 stx2 stx3)))
+    (check-true (equal?
+                 (filter/stx (datum->syntax #f `#(,stx4 #(,stx5) ,stx6))
+                             stx-list?)
+                 (list stx4 stx5 stx6)))
+    )
 
   )
 
