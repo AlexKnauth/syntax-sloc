@@ -12,10 +12,9 @@
 
 (define MAX-PATH-WIDTH 40) ;; characters
 
-;; Get SLOC for `src`, output a string with pretty-printed results
-;; format-sloc : (Path-String -> Natural) Path-String -> String
-(define (format-sloc get-sloc src)
-  (string-append (~r (get-sloc src) #:min-width 4)
+;; format-sloc : Natural Path-String -> String
+(define (format-sloc sloc src)
+  (string-append (~r sloc #:min-width 4)
                  "\t"
                  (format-filepath src)))
 
@@ -53,15 +52,20 @@
      (if px
          (lambda (src) (lang-line-match? px src))
          (lambda (src) #t)))
-   (define (directory-sloc/filter src)
-     (directory-sloc src #:use-file? matching-lang?))
-   (for ([src (in-list FILE-OR-DIRECTORY)])
-     (displayln
-       (cond
-        [(directory-exists? src)
-         (format-sloc directory-sloc/filter src)]
-        [(and (lang-file? src) (matching-lang? src))
-         (format-sloc lang-file-sloc src)]
-        [else
-         (missing-sloc src)])))))
+   (define total-sloc
+     (for/sum ([src (in-list FILE-OR-DIRECTORY)])
+       (define sloc ;; (U #f Natural)
+         (cond
+          [(directory-exists? src)
+           (directory-sloc src #:use-file? matching-lang?)]
+          [(and (lang-file? src) (matching-lang? src))
+           (lang-file-sloc src)]
+          [else
+           #f]))
+       (displayln
+         (if sloc
+           (format-sloc sloc src)
+           (missing-sloc src)))
+       (or sloc 0)))
+   (displayln (format-sloc total-sloc "total"))))
 
