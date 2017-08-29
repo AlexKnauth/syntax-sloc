@@ -75,6 +75,37 @@ except for the ones that @racket[use-file?] returns false for.
                 #:use-file? (has-extension? #"scrbl"))
 }}
 
+@section{Of a package}
+
+@defmodule[syntax-sloc/pkg-sloc]
+
+@defproc[(pkg-sloc [name string?]
+                   [#:use-file? use-file? (-> path? boolean?) (λ (path) #t)])
+         natural-number/c]{
+Counts the number of source lines of code in all @hash-lang[] files
+provided by the package with the given @racket[name], except the ones
+that @racket[use-file?] returns false for.
+
+@;{
+
+Currently the examples are broken because it can't take the lock for
+pkg stuff while the docs are building. Or maybe I need to configure
+the sandbox differently, I don't know.
+
+@code-examples[#:lang "racket" #:context #'here]{
+(require syntax-sloc)
+(pkg-sloc "syntax-sloc")
+;; ext is a byte string containing the expected extension, without the dot
+(define ((has-extension? ext) path)
+  (equal? (filename-extension path) ext))
+(pkg-sloc "syntax-sloc"
+           #:use-file? (has-extension? #"rkt"))
+(pkg-sloc "syntax-sloc"
+          #:use-file? (has-extension? #"scrbl"))
+}
+
+}}
+
 @section{On the command line: @exec{raco sloc}}
 
 The @exec{raco sloc} command counts source lines of code in files or directories
